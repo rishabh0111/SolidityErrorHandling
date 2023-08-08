@@ -1,35 +1,29 @@
-
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity ^0.8.0;
 
-contract ExampleContract {
-    uint256 public balance;
+contract SimpleValidationContract {
+    address public owner;
+    uint256 public value = 10;
 
-    function deposit(uint256 amount) external {
-        // Use require() to check for conditions that users must satisfy.
-        // In this example, we require the deposit amount to be greater than zero.
-        require(amount > 0, "Amount must be greater than zero");
+    event ValueUpdated(uint256 newValue);
 
-        // Use assert() to check for internal errors that should never occur.
-        // In this example, we assert that the contract's balance after the deposit will not overflow.
-        assert(balance + amount >= balance);
-
-        // Perform the deposit.
-        balance += amount;
+    constructor() {
+        owner = msg.sender;
     }
 
-    function withdraw(uint256 amount) external {
-        // Use require() to check for conditions that users must satisfy.
-        // In this example, we require the withdraw amount not to exceed the contract's balance.
-        require(amount <= balance, "Insufficient balance");
+    function updateValue(uint256 newValue) external {
+        // Use require() to validate input
+        require(newValue > 0, "Value must be greater than zero");
+ 
+        // Use assert() to check for invariants
+        assert(msg.sender == owner);
 
-        // Use revert() to handle various error cases explicitly.
-        // In this example, we revert if the withdraw amount is zero.
-        if (amount == 0) {
-            revert("Withdraw amount must be greater than zero");
+        // Use revert() to provide custom error message
+        if (newValue > 100) {
+            revert("Value cannot exceed 100");
         }
 
-        // Perform the withdraw.
-        balance -= amount;
+        value = newValue;
+        emit ValueUpdated(newValue);
     }
 }
